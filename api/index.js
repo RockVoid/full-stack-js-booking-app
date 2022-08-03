@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
+import cors from 'cors';
 
 import authRoute from "./routes/auth.js";
 import hotelsRoute from "./routes/hotels.js";
@@ -30,6 +31,7 @@ mongoose.connection.on("connected", () => {
 
 // Middlewares - Happen between the request and the response, and the "next" callback cut the request to the next middleware   
 
+app.use(cors());
 app.use(cookieParser());
 app.use(express.json());
 

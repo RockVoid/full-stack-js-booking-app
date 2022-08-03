@@ -20,9 +20,11 @@ router.put("/:id", verifyAdmin, updateHotel);
 router.delete("/:id", verifyAdmin, deleteHotels);
 
 //READ
-router.get("/:id", getHotel);
+router.get("/find/:id", getHotel);
 
 //GET ALL
 router.get("/", getHotels);
+router.get("/countByCity", getHotels);
+router.get("/countByType", getHotels);
 
 export default router;
