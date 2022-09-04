@@ -1,4 +1,5 @@
 import Hotel from "../models/Hotel.js";
+import Room from "../models/Room.js";
 
 export const createHotel = async (req, res, next) => {
     const newHotel = new Hotel(req.body);
@@ -6,55 +7,62 @@ export const createHotel = async (req, res, next) => {
     try {
         const savedHotel = await newHotel.save();
         res.status(200).json(savedHotel);
-    } catch (err) {
-        next(err);
+    } catch (error) {
+        next(error);
     }
-};
+}
 
 export const updateHotel = async (req, res, next) => {
     try {
         const updatedHotel = await Hotel.findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true });
         res.status(200).json(updatedHotel);
-    } catch(err) { next(err) }
-};
+    } catch (error) {
+        next(error);
+    }
+}
+
+export const deleteHotel = async (req, res, next) => {
+    try {
+        await Hotel.findByIdAndDelete(req.params.id);
+        res.status(200).json("Hotel has been deleted.");
+    } catch (error) {
+        next(error);
+    }
+}
 
 export const getHotel = async (req, res, next) => {
     try {
-        const hotel = await Hotel.findById(req.params.id);
+        const hotel = await Hotel.findById(req.params.id);       
         res.status(200).json(hotel);
-    } catch (err) {
-        next(err);
+    } catch (error) {
+        next(error);
     }
-};
+}
 
 export const getHotels = async (req, res, next) => {
+    const { min, max, ...others } = req.query;
     try {
-        const hotels = await Hotel.find();
+        const hotels = await Hotel.find({
+            cheapestPrice: { $gt: min | 1, $lt: max || 999 },
+            ...others
+        }).limit(req.query.limit);
         res.status(200).json(hotels);
-    } catch (err) {
-        next(err);
+    } catch (error) {
+        next(error);
     }
-};
-
-export const deleteHotels = async (req, res, next) => {
-    try {
-        await Hotel.findByIdAndDelete(req.params.id);
-        res.status(200).json("Hotel removed with success!");
-    } catch (err) {
-        next(err);
-    }
-};
+}
 
 export const countByCity = async (req, res, next) => {
-    const cities = req.query.cities.split(",");
-
+    const cities = req.query.cities.split(",") || [];
     try {
-        const list = await Promisse.All(cities.map(city => {
-            return Hotel.countDocuments({city: city});
-        }))
+        const list = await Promise.all(
+            cities.map(city => {
+                return Hotel.countDocuments({ city: city });
+            })
+        );
         res.status(200).json(list);
-    } catch (err) {
-        next(err);
+    } catch (error) {
+        next(error);      
     }
 };
 
@@ -68,12 +76,28 @@ export const countByType = async (req, res, next) => {
 
         res.status(200).json([
             { type: "hotel", count: hotelCount },
-            { type: "apartments", count: apartmentCount },
-            { type: "resorts", count: resortCount },
-            { type: "villas", count: villaCount },
-            { type: "cabins", count: cabinCount },
+            { type: "villa", count: villaCount },
+            { type: "resort", count: resortCount },
+            { type: "apartment", count: apartmentCount },
+            { type: "cabin", count: cabinCount },
         ]);
-    } catch(err) {
-        next(err);
+
+    } catch (error) {
+        next(error);
     }
 };
+
+export const getHotelRooms = async (req, res, next) => {
+    try {
+        const hotel = await Hotel.findById(req.params.id);
+        const list = await Promise.All(
+            hotel.rooms.map((room) => {
+                console.log(room);
+                return Room.findById(room)
+            } 
+        ));
+        res.status(200).json(list);
+    } catch (error) {
+        next(error);
+    }
+}

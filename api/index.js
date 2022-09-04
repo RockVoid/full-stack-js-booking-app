@@ -2,57 +2,53 @@ import express from "express";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
-import cors from 'cors';
+import cors from "cors";
 
-import authRoute from "./routes/auth.js";
-import hotelsRoute from "./routes/hotels.js";
-import usersRoute from "./routes/users.js";
+import userRoute from "./routes/users.js";
+import hotelRoute from "./routes/hotels.js"
 import roomsRoute from "./routes/rooms.js";
+import authRoute from "./routes/auth.js";
 
 const app = express();
 dotenv.config();
 
 const connect = async () => {
     try {
-        await mongoose.connect(process.env.MONGO);
-        console.log("Connected to MongoDB");
+        mongoose.connect(process.env.MONGO);
+        console.log("Connected with MongoDB.");
     } catch (error) {
         throw error;
     }
-};
+}
 
 mongoose.connection.on("disconnected", () => {
-    console.log("MongoDB Connected");
+    console.log("Mongo DB disconnected.")
 });
 
-mongoose.connection.on("connected", () => {
-    console.log("MongoDB connected");
-});
-
-// Middlewares - Happen between the request and the response, and the "next" callback cut the request to the next middleware   
-
+// Middlewares - Bridge between API and services of WEB, 
+// like Data management, app services and messaging, auth...
 app.use(cors());
 app.use(cookieParser());
-app.use(express.json());
+app.use(express.json()); // Return a middleware that only parse json and look at content-type header requests
 
-app.use("/api/auth", authRoute);
-app.use("/api/hotels", hotelsRoute);
-app.use("/api/users", usersRoute);
-app.use("/api/rooms", roomsRoute);
+// Routes
+app.use('/api/auth', authRoute);
+app.use('/api/users', userRoute);
+app.use('/api/hotels', hotelRoute);
+app.use('/api/rooms', roomsRoute);
 
-//Middleware error handling
-app.use((err, req, res, next) => {
+app.use((err, req, res) => {
     const errorStatus = err.status || 500;
-    const errorMessage = err.message || "Something went wrong!";
-    return res.status(errorStatus).json({
+    const errorMessage = err.message || 'Something went wrong';
+    return (res.status(errorStatus).json({
         success: false,
         status: errorStatus,
         message: errorMessage,
-        stack: err.stack,
-    });
+        stack: err.stack
+    }));
 });
 
 app.listen(8800, () => {
     connect();
-    console.log("Listen on port 8800");
+    console.log("Connected to backend.");
 });

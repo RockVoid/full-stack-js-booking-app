@@ -3,28 +3,30 @@ import mongoose from "mongoose";
 const HotelSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: true,
+        required: true
     },
     type: {
         type: String,
-        required: true,
+        required: true
     },
     city: {
         type: String,
-        required: true,
+        required: true
     },
     address: {
         type: String,
-        required: true,
+        required: true
     },
     distance: {
         type: String,
-        required: true,
+        required: true
     },
-    photos: { type: [String] },
-    title: { 
-        type: String, 
-        required: true 
+    photos: {
+        type: [String]
+    },
+    title: {
+        type: String,
+        required: true
     },
     desc: {
         type: String,
@@ -36,16 +38,16 @@ const HotelSchema = new mongoose.Schema({
         max: 5
     },
     rooms: {
-        type: [String],
+        type: [String]
     },
     cheapestPrice: {
         type: Number,
-        required: true,
+        required: true
     },
     featured: {
         type: Boolean,
-        default: false
-    }
+        default: false,
+    },
 });
 
 export default mongoose.model("Hotel", HotelSchema);
